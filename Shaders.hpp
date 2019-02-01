@@ -12,12 +12,12 @@ void main()
 )glsl";
 
 const char* fragmentSource = R"glsl(
-#version 150 core
+#version 330 core
 
 out vec4 outColor;
 
 void main()
 {
-  outColor = vec4(1.0, 1.0, 1.0, 1.0);
+  outColor = vec4(0.0, 128.0, 0.0, 1.0);
 }
 )glsl";

@@ -6,15 +6,23 @@ LINK = -lSDL2 -lGL -lGLEW
 
 TARGET = poly
 
-OBJS = main.o
+OBJS = main.o Engine.o
 
 all:${TARGET}
 
-main.o: main.cpp
+${TARGET}: main.o Engine.o
+	${CC} ${LINK} ${OBJS} -o ${TARGET} 
+
+
+main.o: main.cpp Engine.o
 	${CC} -c main.cpp
 
-${TARGET}: main.o
-	${CC} ${LINK} -o ${TARGET} ${OBJS}
+Engine.o: Engine.cpp Engine.hpp Shaders.hpp
+	${CC} -c Engine.cpp
 
 
+clean:
+	rm *.o
 
+cleanEmacs:
+	rm *.*~
