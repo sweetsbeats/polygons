@@ -4,10 +4,6 @@
 
 */
 
-
-#include <iostream>
-#include <cstdint>
-
 #include <SDL2/SDL.h>
 
 #include <GL/glew.h>
@@ -19,6 +15,11 @@
 
 #include "Engine.hpp"
 
+#include <iostream>
+#include <cstdint>
+#include <vector>
+
+
 
 
 #define arrSize(arr)(sizeof(arr)/sizeof(arr[0]))
@@ -29,9 +30,8 @@
 
 int getIndicesFromVBO(int size);
 
-inline double getArcBetweenPoints(double radius, int points) {
-  return (2*PI*radius)/points;
-}
+
+int indicesArrSizeFromVertices(int size);
 
 
 bool running = true;
@@ -44,12 +44,47 @@ int main()
     int32_t x, y;
   } cursor;
 
+  struct Point {
+    int32_t x, y;
+  };
   
+  struct Circle {
+    Point center{ Poly::Core.WINDOW_WIDTH/2,
+		  Poly::Core.WINDOW_HEIGHT/2};
+    
+    double radius = 200.f;
 
-  GLfloat polygon[8] = {0};
-  for(int i = 0; i < 8; i++) {
+    
+    
+  } circle;
+
+  
+  /*
+    
+    THESIS: Any convex polygon can be drawn inside 
+            of a circle. 
+			   
+    PLAN: We can display this by taking
+	  N vertices, calculating an arc len. between
+	  N points on the unit circle using the formula:
+	                 arc = 2*PI/N
+	  Then for N vertices, emplace a vertex at:
+	            (cos(N*arc), sin(N*arc)) 
+	  We then want to connect every vertex in the shape 
+	  with a line; This means not only an outline of
+	  the shape, but also lines through the polygon.
+			   
+   */
+
+  /*
+  
+  // 128 Vert count; Initialize to -1 
+  GLfloat polygon[Poly::Core.MAX_VERT_COUNT*2] = {0};
+  for(int i = 0; i < Poly::Core.MAX_VERT_COUNT*2; i++) {
     polygon[i] = -1.0f;
   }
+  */
+  
   
   /*
     FUNCTION FOR THE COUNT OF INDICES PAIRS
@@ -58,13 +93,101 @@ int main()
     To make sure there's no dud lines, check for each pair that !=
   */
 
+  
+  /*
+  GLfloat polygon[] = {
+		       50.f, 50.f,
+		       75.f, 30.f,
+		       100.f, 50.f,
+		       100.f, 75.f,
+		       75.f, 95.f,
+		       50.f, 75.f,
+		       50.f, 50.f
+  };  
+  */
+
+  
+  std::vector<GLfloat> testPoly =
+    {
+     50.f, 50.f,
+     75.f, 30.f,
+     100.f, 50.f,
+     100.f, 75.f,
+     75.f, 95.f,
+     50.f, 75.f,
+     50.f, 50.f
+    };
+
+  std::vector<GLfloat> vecArr;
+  vecArr.resize(testPoly.size());
+
+  
+  for (int i = 0; i < (testPoly.size()/2)-1; i++) {
+    vecArr[i] = testPoly[i];
+    vecArr[i+1] = testPoly[i+1];
+  }
+
+  std::cout << "vecArr" << std::endl;
+  for (int i = 0; i < (testPoly.size()/2)-1; i++) {
+    std::cout << vecArr[i] << ", " << vecArr[i+1] << std::endl;
+  }
+  
+  /*
+    0, 1
+    0, 2
+    0, 3
+    1, 2
+    1, 3
+    2, 3
+  */
+
+  std::vector<int> temp;
+
+  int size = 6;
+
+  temp.resize(indicesArrSizeFromVertices(size));
+  
+  std::vector<GLubyte> indices;
+  indices.resize(12);
+  std::cout << "Big test" << std::endl;
+  for (int i = 0; i < size; i++) {
+    for (int x = i+1; x < size; x++) {
+      std::cout << i << ", " << x << std::endl;
+      indices.push_back(i);
+      indices.push_back(x);
+    }
+  }
+
+
+  
+    /*= {
+		       0, 1,
+		       1, 2,
+		       2, 3,
+		       0, 2,
+		       0, 3,
+		       1, 3,
+
+  };
+    */
+
+
+  
+  
+  
+
+  
+    
+  /*
   GLubyte indices[] = {
 		       0, 1,
 		       1, 2,
 		       2, 3,
 		       3, 0,
   };
-  
+  */
+
+
   
   GLuint vbo;
   GLuint vao;
@@ -73,17 +196,21 @@ int main()
 
   // Calls SDL/GL(EW) init functions
   Poly::Core.init();
-
     
   //VBO
   glGenBuffers(1, &vbo);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(polygon), polygon, GL_DYNAMIC_DRAW);
+  //  glBufferData(GL_ARRAY_BUFFER, sizeof(polygon), polygon, GL_DYNAMIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, testPoly.size()*sizeof(GLfloat),
+		 testPoly.data(), GL_DYNAMIC_DRAW);
+  
 
+  
   glGenBuffers(1, &indexBufferID);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_DYNAMIC_DRAW);
-
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size()*sizeof(GLubyte),
+	       indices.data(), GL_DYNAMIC_DRAW);
+  
   
   //VAO
   glGenVertexArrays(1, &vao);
@@ -94,7 +221,16 @@ int main()
   Poly::Shader.init();
 
 
+  int x, y;
 
+  std::cout << "getArc: " << Poly::Core.getAngle(1, 4)
+	    << std::endl;
+  
+  Poly::Core.getPoint(x, y, Poly::Core.getAngle(1, 5), 3);
+  std::cout << "x: " << x << "y: " << y << std::endl;
+
+  
+  
   SDL_GL_SetSwapInterval(1);
   
   glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -122,37 +258,9 @@ int main()
 	cursor.y = event.motion.y;
 	break;
 	
-      case SDL_MOUSEBUTTONDOWN: {
-	
-	GLfloat* mem = (GLfloat*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-	
-	if (!mem) {
-	  std::cout << "Fatal error mapping array buffer! Exiting:" << std::endl;
-
-	  // I am a heretic, sue me
-	  glUnmapBuffer(GL_ARRAY_BUFFER);
-	  goto Exit;
-	}
-	else {
-	  for(int i = 0; i <= 6; i+=2) {
-	    std::cout << mem[i] << std::endl;
-	    if(mem[i] == -1 && mem[i+1] == -1) {
-	      mem[i] = cursor.x;
-	      mem[i+1] = cursor.y;
-	      break;
-	    }
-	  }
-	}
-	
-	
-	
-      }
-	
-	glUnmapBuffer(GL_ARRAY_BUFFER);
-	
+      case SDL_MOUSEBUTTONDOWN: 
 	break;
-	
-	  
+         
       case SDL_KEYDOWN:
 	switch(event.key.keysym.sym) {
        
@@ -171,9 +279,20 @@ int main()
 
     
     glClear(GL_COLOR_BUFFER_BIT);
+
+    /*
+    glBufferData(GL_ARRAY_BUFFER, sizeof(polygon),
+		 polygon, GL_STATIC_DRAW);
+    glDrawArrays(GL_TRIANGLE_FAN, 0, arrSize(polygon)/2);
+    */    
+
+    glDrawElements(GL_LINES, indices.size()*sizeof(GLubyte),
+		   GL_UNSIGNED_BYTE, indices.data());
+
+    // std::cout << "testPoly.size: " << testPoly.size() << std::endl;
+
     
-    //glDrawArrays(GL_LINE_STRIP, 0, 6);
-    glDrawElements(GL_LINES, arrSize(indices), GL_UNSIGNED_BYTE, indices);
+    //glDrawArrays(GL_LINE_STRIP, 0, testPoly.size()/2);
 
     SDL_GL_SwapWindow(Poly::Core.window);
     
@@ -184,4 +303,8 @@ int main()
   Poly::Core.exit();
   
   return 0;
+}
+
+int indicesArrSizeFromVertices(int size) {
+  return (size*(size-1))/2;
 }

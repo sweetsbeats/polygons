@@ -2,3 +2,5 @@
 poly
 *.*~
 .*~
+makefile~
+*.o

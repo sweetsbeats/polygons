@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cstdint>
+#include <cmath>
+
 #include <SDL2/SDL.h>
 
 #include <GL/glew.h>
@@ -10,8 +12,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
-
+#define PI 3.141592
 
 
 namespace Poly {
@@ -23,9 +24,19 @@ namespace Poly {
 
     uint16_t WINDOW_WIDTH = 600;
     uint16_t WINDOW_HEIGHT = 400;
-  
+
+    uint16_t MAX_VERT_COUNT = 128;
+    uint16_t vertCount = 4;
+    
     bool init();
     void exit();
+
+    inline double getAngle(double radius, int points) {
+      return (2*PI*radius)/points;
+    }
+
+    void getPoint(int& x, int& y, const double angle, int point);
+    
   };
   
   class _Shader {
@@ -39,6 +50,7 @@ namespace Poly {
     GLint posAttrib;
     
     glm::mat4 projection;
+
     GLint projectionMatrix;
     
     bool init();
