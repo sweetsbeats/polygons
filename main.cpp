@@ -18,7 +18,7 @@
 #include <iostream>
 #include <cstdint>
 #include <vector>
-
+#include <cassert>
 
 
 
@@ -53,8 +53,6 @@ int main()
 		  Poly::Core.WINDOW_HEIGHT/2};
     
     double radius = 200.f;
-
-    
     
   } circle;
 
@@ -121,16 +119,55 @@ int main()
   std::vector<GLfloat> vecArr;
   vecArr.resize(testPoly.size());
 
+  // TODO(sweets): Is this used for anything?
+  int size = 6;
+
   
-  for (int i = 0; i < (testPoly.size()/2)-1; i++) {
+  for (auto& v : testPoly) {
+    v+=100.f;
+    // std::cout << "v: " << v << std::endl;
+  }
+  /*
+  // Apply to arrVec
+  for (int i = 0; i < testPoly.size()-1; i+=2) {
     vecArr[i] = testPoly[i];
     vecArr[i+1] = testPoly[i+1];
+    std::cout << "x:" << vecArr[i] << " ,y:" << vecArr[i+1]
+	      << std::endl;
+  }
+  */
+
+  double angle = Poly::Core.getAngle(1, 6);
+  //std::cout << "BIG ANGLE " << angle << std::endl;
+  
+  //std::cout << "vecArr" << std::endl
+  //	    << "size: " << vecArr.size() << std::endl;
+
+  float tx, ty;
+  for (int i = 0; i < vecArr.size(); i+=2) {
+    Poly::Core.getPoint(tx, ty, angle,
+		        (i/2));
+    vecArr[i]   = tx;
+    vecArr[i+1] = ty;
+    
+    //    std::cout << vecArr[i] << ", " << vecArr[i+1] << std::endl
+    //      << ": " << (i/2)+1 << std::endl;
   }
 
-  std::cout << "vecArr" << std::endl;
-  for (int i = 0; i < (testPoly.size()/2)-1; i++) {
-    std::cout << vecArr[i] << ", " << vecArr[i+1] << std::endl;
+  assert(vecArr.size() == testPoly.size());
+  
+  for (auto& v: vecArr) {
+    //std::cout << "v: " << v << std::endl;
+    v *= 200.f;
+    //std::cout << "v: " << v << std::endl;
+    
+   }
+
+    for (int i = 0; i < vecArr.size(); i+=2) {
+      std::cout << "x: " << vecArr[i] << " y: " << vecArr[i+1] << std::endl
+	      << ": " << (i/2) << std::endl;
   }
+
   
   /*
     0, 1
@@ -141,14 +178,12 @@ int main()
     2, 3
   */
 
-  std::vector<int> temp;
+  std::cout << "indicesArrSizeFromVertices: "
+	    << indicesArrSizeFromVertices(size) << std::endl;
 
-  int size = 6;
-
-  temp.resize(indicesArrSizeFromVertices(size));
   
   std::vector<GLubyte> indices;
-  indices.resize(12);
+  indices.resize(vecArr.size());
   std::cout << "Big test" << std::endl;
   for (int i = 0; i < size; i++) {
     for (int x = i+1; x < size; x++) {
@@ -158,34 +193,6 @@ int main()
     }
   }
 
-
-  
-    /*= {
-		       0, 1,
-		       1, 2,
-		       2, 3,
-		       0, 2,
-		       0, 3,
-		       1, 3,
-
-  };
-    */
-
-
-  
-  
-  
-
-  
-    
-  /*
-  GLubyte indices[] = {
-		       0, 1,
-		       1, 2,
-		       2, 3,
-		       3, 0,
-  };
-  */
 
 
   
@@ -201,8 +208,8 @@ int main()
   glGenBuffers(1, &vbo);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   //  glBufferData(GL_ARRAY_BUFFER, sizeof(polygon), polygon, GL_DYNAMIC_DRAW);
-  glBufferData(GL_ARRAY_BUFFER, testPoly.size()*sizeof(GLfloat),
-		 testPoly.data(), GL_DYNAMIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, vecArr.size()*sizeof(GLfloat),
+		 vecArr.data(), GL_DYNAMIC_DRAW);
   
 
   
@@ -221,14 +228,13 @@ int main()
   Poly::Shader.init();
 
 
-  int x, y;
-
-  std::cout << "getArc: " << Poly::Core.getAngle(1, 4)
-	    << std::endl;
-  
-  Poly::Core.getPoint(x, y, Poly::Core.getAngle(1, 5), 3);
+  float x, y;
+  // X and Y are passed by reference and set in getPoint
+  Poly::Core.getPoint(x, y, Poly::Core.getAngle(1, 6), 0);
   std::cout << "x: " << x << "y: " << y << std::endl;
 
+  int testPoints = 4;
+  
   
   
   SDL_GL_SetSwapInterval(1);

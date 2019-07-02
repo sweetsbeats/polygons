@@ -56,22 +56,29 @@ void Poly::_Core::exit() {
   
 }
 
-void Poly::_Core::getPoint(int& x, int& y,
-			   const double angle, int point) {
+void Poly::_Core::getPoint(float& x, float& y,
+			   double angle, int point) {
   
-  std::cout << "angle " << angle << std::endl;
-  std::cout << "test:" << angle*point << std::endl;
+  //  std::cout << "getPoint::angle " << angle << std::endl;
+  //std::cout << "getPoint::test:" << angle*point << std::endl;
 
-  glm::vec4 p(glm::cos((double)angle*point), glm::sin((double)angle*point), 0, 1);
-  std::cout << "p.x:" << p.x << " p.y:" << p.y << std::endl;
+  glm::vec4 p(glm::cos((float)angle*point*PI),
+	      glm::sin((float)angle*point*PI),
+	      0, 1);
+  //std::cout << "p.x:" << p.x << " p.y:" << p.y << std::endl;
   
-  p = Poly::Shader.projection / p;
-  std::cout << "p.x:" << p.x << " p.y:" << p.y << std::endl;
+  // p=  p/Poly::Shader.projection;
+  // std::cout << "p.x:" << p.x << " p.y:" << p.y << std::endl;
 
   x = p.x;
   y = p.y;
 }
 
+
+void makePolyFromCount(GLuint& vbo, GLuint& vao, int vertices) {
+  
+  
+}
 
 
 // --- SHADER FUNCITONS ---
@@ -120,10 +127,10 @@ bool Poly::_Shader::init() {
 			  (float)Core.WINDOW_HEIGHT,
 			  0.f, -1.f, 1.f);
   
-  projectionMatrix = glGetUniformLocation(shaderProgram, "projection");
+  //projectionMatrix = glGetUniformLocation(shaderProgram, "projection");
 
-  glUniformMatrix4fv(projectionMatrix, 1, GL_FALSE,
-		     glm::value_ptr(projection));
+  //glUniformMatrix4fv(projectionMatrix, 1, GL_FALSE,
+  //		     glm::value_ptr(projection));
 
 
   //  xglPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
