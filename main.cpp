@@ -122,50 +122,34 @@ int main()
   // TODO(sweets): Is this used for anything?
   int size = 6;
 
-  
+  /*
   for (auto& v : testPoly) {
     v+=100.f;
     // std::cout << "v: " << v << std::endl;
   }
-  /*
-  // Apply to arrVec
-  for (int i = 0; i < testPoly.size()-1; i+=2) {
-    vecArr[i] = testPoly[i];
-    vecArr[i+1] = testPoly[i+1];
-    std::cout << "x:" << vecArr[i] << " ,y:" << vecArr[i+1]
-	      << std::endl;
-  }
-  */
+*/
 
   double angle = Poly::Core.getAngle(1, 6);
-  //std::cout << "BIG ANGLE " << angle << std::endl;
-  
-  //std::cout << "vecArr" << std::endl
-  //	    << "size: " << vecArr.size() << std::endl;
 
   float tx, ty;
+  // For every X,Y coord pair in polygon
   for (int i = 0; i < vecArr.size(); i+=2) {
     Poly::Core.getPoint(tx, ty, angle,
 		        (i/2));
     vecArr[i]   = tx;
     vecArr[i+1] = ty;
     
-    //    std::cout << vecArr[i] << ", " << vecArr[i+1] << std::endl
-    //      << ": " << (i/2)+1 << std::endl;
   }
 
   assert(vecArr.size() == testPoly.size());
   
   for (auto& v: vecArr) {
-    //std::cout << "v: " << v << std::endl;
-    v *= 200.f;
-    //std::cout << "v: " << v << std::endl;
-    
+    v *= 10.f;
    }
 
     for (int i = 0; i < vecArr.size(); i+=2) {
-      std::cout << "x: " << vecArr[i] << " y: " << vecArr[i+1] << std::endl
-	      << ": " << (i/2) << std::endl;
+      std::cout << "x: " << vecArr[i] << " y: " << vecArr[i+1]
+	      << " \t: " << (i/2) << std::endl;
   }
 
   
@@ -182,7 +166,14 @@ int main()
 	    << indicesArrSizeFromVertices(size) << std::endl;
 
   
-  std::vector<GLubyte> indices;
+  std::vector<GLubyte> indices = {
+				  0, 1,
+				  1, 2,
+				  2, 3,
+				  3, 4,
+				  4, 0,
+  };
+  /*
   indices.resize(vecArr.size());
   std::cout << "Big test" << std::endl;
   for (int i = 0; i < size; i++) {
@@ -192,8 +183,9 @@ int main()
       indices.push_back(x);
     }
   }
+  */
 
-
+  
 
   
   GLuint vbo;
@@ -207,9 +199,8 @@ int main()
   //VBO
   glGenBuffers(1, &vbo);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  //  glBufferData(GL_ARRAY_BUFFER, sizeof(polygon), polygon, GL_DYNAMIC_DRAW);
-  glBufferData(GL_ARRAY_BUFFER, vecArr.size()*sizeof(GLfloat),
-		 vecArr.data(), GL_DYNAMIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, testPoly.size()*sizeof(GLfloat),
+		 testPoly.data(), GL_DYNAMIC_DRAW);
   
 
   
@@ -222,6 +213,7 @@ int main()
   //VAO
   glGenVertexArrays(1, &vao);
   glBindVertexArray(vao);
+  glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
 
   // Initialize shader program
@@ -241,6 +233,7 @@ int main()
   
   glClearColor(0.0, 0.0, 0.0, 0.0);
   glClear(GL_COLOR_BUFFER_BIT);
+  glDisable(GL_DEPTH_TEST);
   SDL_GL_SwapWindow(Poly::Core.window);
 
 
@@ -286,20 +279,13 @@ int main()
     
     glClear(GL_COLOR_BUFFER_BIT);
 
-    /*
-    glBufferData(GL_ARRAY_BUFFER, sizeof(polygon),
-		 polygon, GL_STATIC_DRAW);
-    glDrawArrays(GL_TRIANGLE_FAN, 0, arrSize(polygon)/2);
-    */    
 
-    glDrawElements(GL_LINES, indices.size()*sizeof(GLubyte),
-		   GL_UNSIGNED_BYTE, indices.data());
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, testPoly.size());
+    glDrawElements(GL_TRIANGLE_STRIP, indices.size(),
+    		   GL_UNSIGNED_BYTE, indices.data());
 
-    // std::cout << "testPoly.size: " << testPoly.size() << std::endl;
-
+    std::cout << glGetError() << std::endl;
     
-    //glDrawArrays(GL_LINE_STRIP, 0, testPoly.size()/2);
-
     SDL_GL_SwapWindow(Poly::Core.window);
     
   }    
