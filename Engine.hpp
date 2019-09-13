@@ -27,6 +27,10 @@ namespace Poly {
 
     uint16_t MAX_VERT_COUNT = 128;
     uint16_t vertCount = 4;
+
+
+    
+    
     
     bool init();
     void exit();
@@ -36,7 +40,8 @@ namespace Poly {
     }
 
     void getPoint(float& x, float& y, double angle, int point);
-    
+
+    void makePolyFromCount(GLuint& vbo, GLuint& vao, int vertices);
   };
   
   class _Shader {

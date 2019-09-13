@@ -17,7 +17,7 @@
 #include <iostream>
 #include <cstdint>
 #include <vector>
-
+#include <cassert>
 
 
 
@@ -52,8 +52,6 @@ int main()
 		  Poly::Core.WINDOW_HEIGHT/2};
     
     double radius = 200.f;
-
-    
     
   } circle;
 
@@ -123,10 +121,6 @@ int main()
   std::vector<GLfloat> vecArr;
   vecArr.resize(vecSize*2);
 
-  
-  for (int i = 0; i < testPoly.size(); i++) {
-    vecArr[i] = testPoly[i];
-  }
 
   auto angle = Poly::Core.getAngle(1, vecArr.size()/2);
 
@@ -151,9 +145,21 @@ int main()
 
     
     std::cout << "vecArr 3" << std::endl;
-  for (int i = 0; i < (testPoly.size()/2)-1; i++) {
-    std::cout << vecArr[i] << ", " << vecArr[i+1] << std::endl;
+    for (int i = 0; i < (testPoly.size()/2)-1; i++) {
+      std::cout << vecArr[i] << ", " << vecArr[i+1] << std::endl;
+    }
+
+  assert(vecArr.size() == testPoly.size());
+  
+  for (auto& v: vecArr) {
+    v *= 10.f;
+   }
+
+    for (int i = 0; i < vecArr.size(); i+=2) {
+      std::cout << "x: " << vecArr[i] << " y: " << vecArr[i+1]
+	      << " \t: " << (i/2) << std::endl;
   }
+
   
   /*
     0, 1
@@ -164,11 +170,7 @@ int main()
     2, 3
   */
 
-  std::vector<int> temp;
 
-  int size = vecArr.size()/2;;
-
-  temp.resize(indicesArrSizeFromVertices(size));
   
   std::vector<GLubyte> indices;
   indices.resize(vecArr.size());
@@ -181,35 +183,7 @@ int main()
     }
   }
 
-
   
-    /*= {
-		       0, 1,
-		       1, 2,
-		       2, 3,
-		       0, 2,
-		       0, 3,
-		       1, 3,
-
-  };
-    */
-
-
-  
-  
-  
-
-  
-    
-  /*
-  GLubyte indices[] = {
-		       0, 1,
-		       1, 2,
-		       2, 3,
-		       3, 0,
-  };
-  */
-
 
   
   GLuint vbo;
@@ -225,8 +199,7 @@ int main()
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   //  glBufferData(GL_ARRAY_BUFFER, sizeof(polygon), polygon, GL_DYNAMIC_DRAW);
   glBufferData(GL_ARRAY_BUFFER, vecArr.size()*sizeof(GLfloat),
-		 vecArr.data(), GL_DYNAMIC_DRAW);
-  
+		 vecArr.data(), GL_DYNAMIC_DRAW);  
 
   
   glGenBuffers(1, &indexBufferID);
@@ -238,21 +211,18 @@ int main()
   //VAO
   glGenVertexArrays(1, &vao);
   glBindVertexArray(vao);
+  glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
 
   // Initialize shader program
   Poly::Shader.init();
 
-
-  std::cout << "getArc: " << Poly::Core.getAngle(1, 4)
-	    << std::endl;
-  
-  
   
   SDL_GL_SetSwapInterval(1);
   
   glClearColor(0.0, 0.0, 0.0, 0.0);
   glClear(GL_COLOR_BUFFER_BIT);
+  glDisable(GL_DEPTH_TEST);
   SDL_GL_SwapWindow(Poly::Core.window);
 
 
@@ -298,20 +268,13 @@ int main()
     
     glClear(GL_COLOR_BUFFER_BIT);
 
-    /*
-    glBufferData(GL_ARRAY_BUFFER, sizeof(polygon),
-		 polygon, GL_STATIC_DRAW);
-    glDrawArrays(GL_TRIANGLE_FAN, 0, arrSize(polygon)/2);
-    */    
 
-    glDrawElements(GL_LINES, indices.size()*sizeof(GLubyte),
-		   GL_UNSIGNED_BYTE, indices.data());
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, testPoly.size());
+    glDrawElements(GL_TRIANGLE_STRIP, indices.size(),
+    		   GL_UNSIGNED_BYTE, indices.data());
 
-    // std::cout << "testPoly.size: " << testPoly.size() << std::endl;
-
+    std::cout << glGetError() << std::endl;
     
-    //glDrawArrays(GL_LINE_STRIP, 0, testPoly.size()/2);
-
     SDL_GL_SwapWindow(Poly::Core.window);
     
   }    
