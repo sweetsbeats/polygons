@@ -11,7 +11,7 @@ OBJS = main.o Engine.o
 all:${TARGET}
 
 ${TARGET}: main.o Engine.o
-	${CC} ${LINK} ${OBJS} -o ${TARGET} 
+	${CC} -std=c++17 ${LINK} ${OBJS} -o ${TARGET} 
 
 
 main.o: main.cpp Engine.o

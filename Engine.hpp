@@ -22,8 +22,8 @@ namespace Poly {
     SDL_Window* window = nullptr;
     SDL_GLContext GLcontext;
 
-    uint16_t WINDOW_WIDTH = 600;
-    uint16_t WINDOW_HEIGHT = 400;
+    uint16_t WINDOW_WIDTH = 1280;
+    uint16_t WINDOW_HEIGHT = 720;
 
     uint16_t MAX_VERT_COUNT = 128;
     uint16_t vertCount = 4;
@@ -35,7 +35,7 @@ namespace Poly {
       return (2*PI*radius)/points;
     }
 
-    void getPoint(int& x, int& y, const double angle, int point);
+    void getPoint(float& x, float& y, double angle, int point);
     
   };
   

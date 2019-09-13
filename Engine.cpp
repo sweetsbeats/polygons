@@ -56,8 +56,8 @@ void Poly::_Core::exit() {
   
 }
 
-void Poly::_Core::getPoint(int& x, int& y,
-			   const double angle, int point) {
+void Poly::_Core::getPoint(float& x, float& y,
+			   double angle, int point) {
   
   std::cout << "angle " << angle << std::endl;
   std::cout << "test:" << angle*point << std::endl;

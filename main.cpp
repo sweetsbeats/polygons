@@ -1,4 +1,3 @@
-
 /*
   POLYGONS
 
@@ -118,16 +117,40 @@ int main()
      50.f, 50.f
     };
 
+
+  int vecSize = 24;
+  
   std::vector<GLfloat> vecArr;
-  vecArr.resize(testPoly.size());
+  vecArr.resize(vecSize*2);
 
   
-  for (int i = 0; i < (testPoly.size()/2)-1; i++) {
+  for (int i = 0; i < testPoly.size(); i++) {
     vecArr[i] = testPoly[i];
-    vecArr[i+1] = testPoly[i+1];
   }
 
-  std::cout << "vecArr" << std::endl;
+  auto angle = Poly::Core.getAngle(1, vecArr.size()/2);
+
+  float tx, ty;
+  // For every X,Y coord pair in polygon
+  for (int i = 0; i < vecArr.size(); i+=2) {
+    Poly::Core.getPoint(tx, ty, angle,
+			(i/2));
+    vecArr[i]   = tx;
+    vecArr[i+1] = ty;
+
+  }
+
+  for (float& n : vecArr) {
+    n *= 300.f;
+  }
+    for (int i = 0; i < vecArr.size(); i+=2) {
+      vecArr[i] += circle.center.x;
+      vecArr[i+1] += circle.center.y;
+
+    }
+
+    
+    std::cout << "vecArr 3" << std::endl;
   for (int i = 0; i < (testPoly.size()/2)-1; i++) {
     std::cout << vecArr[i] << ", " << vecArr[i+1] << std::endl;
   }
@@ -143,12 +166,12 @@ int main()
 
   std::vector<int> temp;
 
-  int size = 6;
+  int size = vecArr.size()/2;;
 
   temp.resize(indicesArrSizeFromVertices(size));
   
   std::vector<GLubyte> indices;
-  indices.resize(12);
+  indices.resize(vecArr.size());
   std::cout << "Big test" << std::endl;
   for (int i = 0; i < size; i++) {
     for (int x = i+1; x < size; x++) {
@@ -201,8 +224,8 @@ int main()
   glGenBuffers(1, &vbo);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   //  glBufferData(GL_ARRAY_BUFFER, sizeof(polygon), polygon, GL_DYNAMIC_DRAW);
-  glBufferData(GL_ARRAY_BUFFER, testPoly.size()*sizeof(GLfloat),
-		 testPoly.data(), GL_DYNAMIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, vecArr.size()*sizeof(GLfloat),
+		 vecArr.data(), GL_DYNAMIC_DRAW);
   
 
   
@@ -221,14 +244,9 @@ int main()
   Poly::Shader.init();
 
 
-  int x, y;
-
   std::cout << "getArc: " << Poly::Core.getAngle(1, 4)
 	    << std::endl;
   
-  Poly::Core.getPoint(x, y, Poly::Core.getAngle(1, 5), 3);
-  std::cout << "x: " << x << "y: " << y << std::endl;
-
   
   
   SDL_GL_SetSwapInterval(1);
